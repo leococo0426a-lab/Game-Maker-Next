@@ -1,0 +1,16 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "B9UldYwrOtunlXtErbsTg"
+uri = "file://downloads/Game-Maker-Next-static-site.zip"
+type = "unspecified"
+title = "Game Maker Next — サイト一式"
+description = "HTML・CSS・JavaScript・ゲーム素材を含む静的サイトZIPです。API・データベースは含みません。"
+logical_id = "ee8105d5-44cd-4f2f-b407-b94e6bda6bd0"
+content_hash = "sha256:c87acb51db2ae626aa3f6867073b537fdf25cb8ea1380e20f3a52cfe750e1214"
+size = 298238
+mtime_ms = 1790950377688
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:2d7dfc7e-68b2-4949-b872-4e4e9cdf76be/ee8105d5-44cd-4f2f-b407-b94e6bda6bd0/b77a7e71-c0f1-474f-890a-dcbd357af289"
+storage_version_token = "1790950390650162"
+content_type = "application/octet-stream"
