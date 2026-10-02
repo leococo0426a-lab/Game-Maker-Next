@@ -65,10 +65,10 @@ function place(board: number[][], shape: number[][], px: number, py: number): nu
 }
 
 function clearLines(board: number[][]): [number[][], number] {
-  const kept = board.filter(r => r.some(c => !c));
-  const cleared = ROWS - kept.length;
+  const remainingRows = board.filter(row => !row.every(cell => cell !== 0));
+  const cleared = ROWS - remainingRows.length;
   const newRows = Array.from({ length: cleared }, () => Array(COLS).fill(0));
-  return [[...newRows, ...kept], cleared];
+  return [[...newRows, ...remainingRows], cleared];
 }
 
 function randPiece() { return PIECES[Math.floor(Math.random() * 7) + 1]; }
@@ -112,6 +112,8 @@ export default function Tetris() {
   const [gameOver, setGameOver] = useState(false);
   const [started, setStarted] = useState(false);
   const [bestScore, setBestScore] = useState(() => parseInt(localStorage.getItem("tetris_hs") || "0"));
+  // Keep high-score updates from restarting the effect and clearing the live board.
+  const bestScoreRef = useRef(bestScore);
   const { addPlay } = useGameHistory();
 
   const startGame = useCallback(() => {
@@ -223,7 +225,7 @@ export default function Tetris() {
         ["SCORE", totalScore.toLocaleString()],
         ["LINES", String(totalLines)],
         ["LEVEL", String(lv)],
-        ["BEST", bestScore.toLocaleString()],
+        ["BEST", bestScoreRef.current.toLocaleString()],
       ];
       stats.forEach(([label, val], i) => {
         const y = 232 + i * 32;
@@ -254,7 +256,8 @@ export default function Tetris() {
             totalScore += pts; totalLines += cleared;
             lv = Math.floor(totalLines / 10) + 1;
             setScore(totalScore); setLines(totalLines); setLevel(lv);
-            if (totalScore > bestScore) {
+            if (totalScore > bestScoreRef.current) {
+              bestScoreRef.current = totalScore;
               setBestScore(totalScore);
               localStorage.setItem("tetris_hs", String(totalScore));
             }
@@ -297,7 +300,7 @@ export default function Tetris() {
     document.addEventListener("keydown", onKey);
     animId = requestAnimationFrame((t) => { ts = t; render(t); });
     return () => { cancelAnimationFrame(animId); document.removeEventListener("keydown", onKey); };
-  }, [started, gameOver, addPlay, bestScore]);
+  }, [started, gameOver, addPlay]);
 
   const canvasWidth = 10 + COLS * CELL + 20 + 110 + 10;
   const canvasHeight = 10 + ROWS * CELL + 10;
