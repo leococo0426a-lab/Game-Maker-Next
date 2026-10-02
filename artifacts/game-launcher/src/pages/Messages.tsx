@@ -13,7 +13,11 @@ const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 async function apiFetch(path: string, opts?: RequestInit) {
   const res = await fetch(`${BASE}${path}`, { credentials: "include", headers: { "Content-Type": "application/json" }, ...opts });
-  return res.json();
+  const data = await res.json().catch(() => ({ message: "サーバーからの応答を読み取れませんでした" }));
+  if (!res.ok) {
+    throw new Error(typeof data.message === "string" ? data.message : "リクエストに失敗しました");
+  }
+  return data;
 }
 
 export default function Messages() {
@@ -57,9 +61,15 @@ export default function Messages() {
     if (!search.trim()) return;
     try {
       const data = await apiFetch(`/api/messages/${search.trim()}`);
-      if (data.targetUser) { setSelected({ userId: data.targetUser.id, username: data.targetUser.username }); setMessages(data.messages || []); setSearch(""); setSearchResult(null); }
+      if (data.targetUser?.id === user?.id) {
+        setSearchResult("自分自身にはメッセージできません。別のユーザー名を検索してください");
+        return;
+      }
+      if (data.targetUser) { setSelected({ userId: data.targetUser.id, username: data.targetUser.username }); setMessages(data.messages || []); setSearch(""); setSearchResult(null); setError(""); }
       else setSearchResult("ユーザーが見つかりません");
-    } catch { setSearchResult("ユーザーが見つかりません"); }
+    } catch (err) {
+      setSearchResult(err instanceof Error ? err.message : "ユーザーが見つかりません");
+    }
   };
 
   const sendMessage = async () => {
@@ -67,9 +77,11 @@ export default function Messages() {
     setSending(true); setError("");
     try {
       const data = await apiFetch(`/api/messages/${selected.username}`, { method: "POST", body: JSON.stringify({ content: newMsg.trim() }) });
-      if (data.message) { setMessages(prev => [...prev, data.message]); setNewMsg(""); fetchConversations(); }
-      else setError(data.message || "送信失敗");
-    } catch { setError("送信に失敗しました"); } finally { setSending(false); }
+      if (!data.message || typeof data.message !== "object") throw new Error("送信結果を確認できませんでした");
+      setMessages(prev => [...prev, data.message]); setNewMsg(""); fetchConversations();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "送信に失敗しました");
+    } finally { setSending(false); }
   };
 
   const handleFriendSearch = async () => {
