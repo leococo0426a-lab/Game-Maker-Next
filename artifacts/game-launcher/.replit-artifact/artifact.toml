@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Game Launcher"
+description = "A browser-game portal for discovering and playing 60+ games, with accounts, friends, messages, game history, and real-time multiplayer."
+version = "1.0.0"
+id = "artifacts/game-launcher"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25173
+
+[services.development]
+run = "pnpm --filter @workspace/game-launcher run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/game-launcher", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/game-launcher/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25173"
+BASE_PATH = "/"
