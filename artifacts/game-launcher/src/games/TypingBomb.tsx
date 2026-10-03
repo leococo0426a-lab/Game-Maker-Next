@@ -33,10 +33,26 @@ function timeLimit(passes: number): number {
   return Math.max(15 - Math.floor(passes / 2), 3);
 }
 
-function aiCharDelay(): number { return 100 + Math.random() * 160; }
+type AIDifficulty = {
+  label: string;
+  panicChance: number;
+  mistakeChance: number;
+  minCharDelay: number;
+  maxCharDelay: number;
+};
+
+const AI_DIFFICULTIES: AIDifficulty[] = [
+  { label: "かんたん", panicChance: 0.68, mistakeChance: 0.4, minCharDelay: 190, maxCharDelay: 290 },
+  { label: "ふつう", panicChance: 0.45, mistakeChance: 0.25, minCharDelay: 145, maxCharDelay: 235 },
+  { label: "むずかしい", panicChance: 0.22, mistakeChance: 0.12, minCharDelay: 95, maxCharDelay: 170 },
+];
+
+function aiCharDelay(difficulty: AIDifficulty): number {
+  return difficulty.minCharDelay + Math.random() * (difficulty.maxCharDelay - difficulty.minCharDelay);
+}
 
 // ── 型 ────────────────────────────────────────────────────
-type Phase    = "lobby" | "playing" | "won" | "lost";
+type Phase    = "lobby" | "matching" | "matched" | "playing" | "won" | "lost";
 type GameMode = "online" | "ai";
 type Move     =
   | { type: "bomb_pass";       word: string; passes: number }
@@ -54,7 +70,9 @@ function randAIName() { return AI_NAMES[Math.floor(Math.random() * AI_NAMES.leng
 export default function TypingBomb() {
   const [phase,       setPhase]      = useState<Phase>("lobby");
   const [gameMode,    setGameMode]   = useState<GameMode>("online");
+  const [matchMsg,    setMatchMsg]   = useState("");
   const [oppName,     setOppName]    = useState("");
+  const [aiDifficultyLabel, setAiDifficultyLabel] = useState("");
   const [iHaveBomb,   setIHaveBomb]  = useState(false);
   const [word,        setWord]       = useState("");
   const [typed,       setTyped]      = useState("");
@@ -82,6 +100,11 @@ export default function TypingBomb() {
   const timerRef        = useRef<ReturnType<typeof setInterval> | null>(null);
   const oppTimerRef     = useRef<ReturnType<typeof setInterval> | null>(null);
   const aiSeqRef        = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const matchIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const matchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const matchedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const aiDifficultyRef = useRef<AIDifficulty>(AI_DIFFICULTIES[1]);
+  const lastAiDifficultyRef = useRef<number | null>(null);
   const flashTimerRef   = useRef<ReturnType<typeof setTimeout>  | null>(null);
   const flyTimerRef     = useRef<ReturnType<typeof setTimeout>  | null>(null);
   const phaseRef        = useRef<Phase>("lobby");
@@ -94,6 +117,14 @@ export default function TypingBomb() {
   const stopAI       = useCallback(() => {
     aiSeqRef.current.forEach(t => clearTimeout(t));
     aiSeqRef.current = [];
+  }, []);
+  const clearMatchTimers = useCallback(() => {
+    if (matchIntervalRef.current) clearInterval(matchIntervalRef.current);
+    if (matchTimeoutRef.current) clearTimeout(matchTimeoutRef.current);
+    if (matchedTimeoutRef.current) clearTimeout(matchedTimeoutRef.current);
+    matchIntervalRef.current = null;
+    matchTimeoutRef.current = null;
+    matchedTimeoutRef.current = null;
   }, []);
 
   // ── 爆弾フライトアニメーション ───────────────────────
@@ -155,10 +186,10 @@ export default function TypingBomb() {
     setOppTyped(0);
     setOppFlash(false);
 
+    const difficulty = aiDifficultyRef.current;
     const limit      = timeLimit(aiPasses) * 1000;
-    // 最初から50%でパニック確定（間違いを繰り返してタイムオーバー）
-    const willPanic  = Math.random() < 0.5;
-    const hasMistake = !willPanic && Math.random() < 0.30;
+    const willPanic  = Math.random() < difficulty.panicChance;
+    const hasMistake = !willPanic && Math.random() < difficulty.mistakeChance;
     const mistakeAt  = hasMistake ? Math.floor(Math.random() * aiWord.length) : -1;
 
     let elapsed     = 0;
@@ -179,7 +210,7 @@ export default function TypingBomb() {
       // 少し打ってミス → リセット → 繰り返し
       const partialChars = Math.floor(Math.random() * (aiWord.length - 1));
       setOppTyped(partialChars);
-      const mistakeDelay = partialChars * aiCharDelay() + 200;
+      const mistakeDelay = partialChars * aiCharDelay(difficulty) + 200;
       const t = setTimeout(() => {
         if (phaseRef.current !== "playing") return;
         setOppFlash(true);
@@ -188,7 +219,7 @@ export default function TypingBomb() {
           setOppFlash(false);
           setOppTyped(0);
           charIndex = 0;
-          const nextDelay = 300 + Math.random() * 400;
+          const nextDelay = aiCharDelay(difficulty) * 2;
           elapsed += 500 + nextDelay;
           const t3 = setTimeout(panicLoop, nextDelay);
           aiSeqRef.current.push(t3);
@@ -209,7 +240,7 @@ export default function TypingBomb() {
           setOppFlash(false);
           charIndex = 0;
           setOppTyped(0);
-          const delay = aiCharDelay();
+          const delay = aiCharDelay(difficulty);
           elapsed += delay + 500;
           const t2 = setTimeout(typeNext, delay);
           aiSeqRef.current.push(t2);
@@ -232,7 +263,7 @@ export default function TypingBomb() {
         return;
       }
 
-      const delay = aiCharDelay();
+      const delay = aiCharDelay(difficulty);
       elapsed += delay;
       const t = setTimeout(typeNext, delay);
       aiSeqRef.current.push(t);
@@ -364,7 +395,8 @@ export default function TypingBomb() {
     }
   }, [status, playerId, phase, iHaveBomb]);
 
-  const startAiGame = useCallback(() => {
+  const startMatching = useCallback(() => {
+    clearMatchTimers();
     disconnect();
     stopTimer();
     stopOppTimer();
@@ -374,38 +406,71 @@ export default function TypingBomb() {
     flashTimerRef.current = null;
     flyTimerRef.current = null;
 
-    const firstWord = getWord(0);
     gameModeRef.current = "ai";
-    phaseRef.current = "playing";
-    passesRef.current = 0;
-    iHaveBombRef.current = true;
-    wordRef.current = firstWord;
-    typedRef.current = "";
-    flashRef.current = false;
-    dangerRolledRef.current = false;
-
     setGameMode("ai");
-    setOppName(randAIName());
-    setPhase("playing");
-    setPasses(0);
-    setIHaveBomb(true);
-    setWord(firstWord);
-    setTyped("");
-    setFlashRed(false);
-    setOppWord("⏳ 爆弾を待っています");
-    setOppTyped(0);
-    setOppFlash(false);
-    setOppTimeLeft(15);
-    setShaking(false);
-    setBombFlying("none");
-    startTimer(0);
-  }, [disconnect, stopTimer, stopOppTimer, stopAI, startTimer]);
+    const previousIndex = lastAiDifficultyRef.current;
+    const availableIndexes = AI_DIFFICULTIES
+      .map((_, index) => index)
+      .filter(index => index !== previousIndex);
+    const difficultyIndex = availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
+    const difficulty = AI_DIFFICULTIES[difficultyIndex];
+    lastAiDifficultyRef.current = difficultyIndex;
+    aiDifficultyRef.current = difficulty;
+
+    const name = randAIName();
+    setOppName(name);
+    setAiDifficultyLabel(difficulty.label);
+    setMatchMsg("マッチング中");
+    phaseRef.current = "matching";
+    setPhase("matching");
+
+    matchIntervalRef.current = setInterval(() => {
+      setMatchMsg(message => message.endsWith("......") ? "マッチング中" : `${message}.`);
+    }, 400);
+
+    const searchTime = 3000 + Math.random() * 3000;
+    matchTimeoutRef.current = setTimeout(() => {
+      if (matchIntervalRef.current) clearInterval(matchIntervalRef.current);
+      matchIntervalRef.current = null;
+      matchTimeoutRef.current = null;
+
+      setMatchMsg(`${name}（${difficulty.label}）とマッチング！`);
+      phaseRef.current = "matched";
+      setPhase("matched");
+      matchedTimeoutRef.current = setTimeout(() => {
+        matchedTimeoutRef.current = null;
+        const firstWord = getWord(0);
+        phaseRef.current = "playing";
+        passesRef.current = 0;
+        iHaveBombRef.current = true;
+        wordRef.current = firstWord;
+        typedRef.current = "";
+        flashRef.current = false;
+        dangerRolledRef.current = false;
+
+        setPhase("playing");
+        setPasses(0);
+        setIHaveBomb(true);
+        setWord(firstWord);
+        setTyped("");
+        setFlashRed(false);
+        setOppWord("⏳ 爆弾を待っています");
+        setOppTyped(0);
+        setOppFlash(false);
+        setOppTimeLeft(15);
+        setShaking(false);
+        setBombFlying("none");
+        startTimer(0);
+      }, 900);
+    }, searchTime);
+  }, [clearMatchTimers, disconnect, stopTimer, stopOppTimer, stopAI, startTimer]);
 
   useEffect(() => () => {
     stopTimer(); stopOppTimer(); stopAI();
+    clearMatchTimers();
     if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
     if (flyTimerRef.current)   clearTimeout(flyTimerRef.current);
-  }, [stopTimer, stopOppTimer, stopAI]);
+  }, [stopTimer, stopOppTimer, stopAI, clearMatchTimers]);
 
   const copyCode = () => { navigator.clipboard.writeText(roomCode); setCopied(true); setTimeout(() => setCopied(false), 2000); };
 
@@ -438,9 +503,9 @@ export default function TypingBomb() {
           <span className="text-xs text-orange-500 font-bold">最初15秒・パスするたびに1秒減っていく…</span>
         </p>
         {error && <p className="text-sm text-destructive font-bold bg-destructive/10 px-4 py-2 rounded-xl">{error}</p>}
-        <Button onClick={startAiGame}
+        <Button onClick={startMatching}
           className="w-full rounded-full py-5 text-base font-black bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-0">
-          🤖 AIと対戦
+          🔍 マッチング
         </Button>
         <div className="relative w-full">
           <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div>
@@ -456,6 +521,20 @@ export default function TypingBomb() {
             <Button onClick={() => joinRoom(joinInput)} disabled={joinInput.length !== 6} className="rounded-xl shrink-0">参加</Button>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (phase === "matching" || phase === "matched") {
+    return (
+      <div className="flex flex-col items-center gap-6 text-center">
+        <div className={`text-6xl ${phase === "matching" ? "animate-pulse" : "animate-bounce"}`}>
+          {phase === "matching" ? "🔍" : "🎉"}
+        </div>
+        <h2 className="text-2xl font-black">{phase === "matched" ? "マッチング完了！" : "対戦相手を探しています"}</h2>
+        <p className={`text-lg font-bold ${phase === "matched" ? "text-green-600" : "text-muted-foreground"}`}>{matchMsg}</p>
+        {phase === "matching" && <div className="flex gap-1 mt-2">{[0,1,2].map(i=><div key={i} className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{animationDelay:`${i*0.15}s`}}/>)}</div>}
+        {phase === "matched" && <p className="text-sm text-muted-foreground">強さ：{aiDifficultyLabel} ・ まもなく開始…</p>}
       </div>
     );
   }
@@ -639,7 +718,9 @@ export default function TypingBomb() {
             : "bg-muted/30 border-border opacity-60"
         }`}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-black text-muted-foreground truncate">{gameMode === "ai" ? oppName : "相手"}</span>
+            <span className="text-xs font-black text-muted-foreground truncate">
+              {gameMode === "ai" ? `${oppName} · ${aiDifficultyLabel}` : "相手"}
+            </span>
             {!iHaveBomb && oppWord?.match(/^[A-Z]+$/) && (
               <div className="relative w-10 h-10 flex items-center justify-center">
                 <svg width={40} height={40} className="-rotate-90">
