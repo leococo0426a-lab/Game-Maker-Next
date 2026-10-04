@@ -239,12 +239,7 @@ export default function Launcher() {
               {filteredGames.map(game => (
                 <Link key={game.id} href={`/game/${game.id}`} className="group block">
                   <div className="bg-white border-2 border-border rounded-2xl overflow-hidden transition-all duration-200 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/30 flex flex-col h-full relative">
-                    {game.comingSoon && (
-                      <div className="absolute top-2 right-2 z-10 bg-amber-400 text-amber-900 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide">
-                        近日公開
-                      </div>
-                    )}
-                    {game.multiplayer && !game.comingSoon && (
+                    {game.multiplayer && (
                       <div className="absolute top-2 right-2 z-10 bg-primary text-primary-foreground text-[9px] font-black px-2 py-0.5 rounded-full uppercase flex items-center gap-0.5">
                         <Users className="w-2.5 h-2.5" /> 対戦
                       </div>
@@ -252,7 +247,7 @@ export default function Launcher() {
                     <div className="h-32 w-full flex items-center justify-center text-5xl relative overflow-hidden"
                       style={{ background: `linear-gradient(135deg, ${game.color}30, ${game.color}60)` }}>
                       <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-200" />
-                      <span className={`relative z-10 transition-transform duration-200 ${game.comingSoon ? "opacity-60 grayscale" : "group-hover:scale-110"}`}>
+                      <span className="relative z-10 transition-transform duration-200 group-hover:scale-110">
                         {game.emoji}
                       </span>
                     </div>
@@ -269,8 +264,8 @@ export default function Launcher() {
                           <Users className="w-3 h-3 mr-1" />{game.players}
                         </div>
                         <Button size="sm" variant="secondary"
-                          className={`text-xs font-black rounded-full px-3 h-6 transition-colors ${game.comingSoon ? "" : "group-hover:bg-primary group-hover:text-primary-foreground"}`}>
-                          {game.comingSoon ? "近日公開" : "プレイ"}
+                          className="text-xs font-black rounded-full px-3 h-6 transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                          プレイ
                         </Button>
                       </div>
                     </div>

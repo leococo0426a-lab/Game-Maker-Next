@@ -7,7 +7,6 @@ export type Game = {
   color: string;
   players: string;
   multiplayer?: boolean;
-  comingSoon?: boolean;
 };
 
 export const CATEGORIES = [
@@ -68,21 +67,6 @@ export const GAMES: Game[] = [
   { id: "needlethread", title: "まち針", description: "回転する輪の隙間に糸を通せ！難易度が上がるほどスリル溢れる", category: "スキル", emoji: "🪡", color: "#14b8a6", players: "1.8k" },
   { id: "typingbomb", title: "タイピング爆弾", description: "文字をタイプして爆弾を友達に送れ！タイマー切れで爆発💥 パスするたびに時間が減る！", category: "スキル", emoji: "💣", color: "#dc2626", players: "0", multiplayer: true },
 
-  // ── 近日公開 ──────────────────────────────────────────────
-  { id: "pokemon", title: "モンスターバトル", description: "モンスターを育てて対決！ターン制RPGバトル", category: "ストラテジー", emoji: "⚡", color: "#facc15", players: "4.7k", comingSoon: true },
-  { id: "galaxian", title: "ギャラクシアン", description: "押し寄せる敵を撃ち落とせ！宇宙インベーダー系", category: "アクション", emoji: "👾", color: "#7c3aed", players: "1.4k", comingSoon: true },
-  { id: "tangram", title: "タングラム", description: "7つのピースで形を完成させる古典パズル", category: "パズル", emoji: "△", color: "#f59e0b", players: "670", comingSoon: true },
-  { id: "billiards", title: "ビリヤード", description: "狙い定めてボールを落とせ！物理エンジン搭載", category: "スポーツ", emoji: "🎱", color: "#15803d", players: "1.3k", comingSoon: true },
+  // ── 遊べるゲーム ─────────────────────────────────────────
   { id: "pictionary", title: "お絵かきクイズ", description: "お題を見て絵を描き、自分で回答を当てよう！スピードお絵描きクイズ", category: "スキル", emoji: "🖌️", color: "#f97316", players: "2.2k" },
-  { id: "breakout2", title: "スーパーブレイクアウト", description: "パワーアップ付きのブレイクアウト！マルチボールで大量破壊", category: "アーケード", emoji: "💥", color: "#f97316", players: "1.4k", comingSoon: true },
-  { id: "poker", title: "テキサスホールデム", description: "5枚のカードで最強の手を作れ！AIとのポーカー対決", category: "スキル", emoji: "♠️", color: "#1e293b", players: "2.0k", comingSoon: true },
-  { id: "chess3", title: "チェス960", description: "フィッシャーランダムチェス！毎回違う配置でスタート", category: "ストラテジー", emoji: "♚", color: "#374151", players: "890", comingSoon: true },
-  { id: "pong2", title: "3D Pong", description: "立体的なPong！Z軸移動で奥行きを使った対戦", category: "スポーツ", emoji: "🏓", color: "#10b981", players: "1.1k", comingSoon: true, multiplayer: true },
-  { id: "infinite", title: "インフィニティクリッカー", description: "宇宙を征服するハイパーインフレ放置ゲーム", category: "アーケード", emoji: "∞", color: "#6366f1", players: "3.2k", comingSoon: true },
-  { id: "trivia2", title: "アニメクイズ", description: "アニメ・マンガのトリビアに挑戦！ハードモードあり", category: "スキル", emoji: "🎌", color: "#f43f5e", players: "4.1k", comingSoon: true },
-  { id: "breakdance", title: "リズムバトル", description: "音楽に合わせてボタンを押してダンスバトル！オンライン対戦", category: "スキル", emoji: "💃", color: "#ec4899", players: "1.9k", comingSoon: true, multiplayer: true },
-  { id: "marble", title: "マーブルレース", description: "ビー玉レース！物理エンジンで予測不能なバトル", category: "アーケード", emoji: "🔮", color: "#a855f7", players: "2.0k", comingSoon: true },
-  { id: "hex", title: "ヘックス戦略", description: "六角形のボードで陣地を繋げ！シンプルだが奥深いボードゲーム", category: "ストラテジー", emoji: "⬡", color: "#0891b2", players: "680", comingSoon: true },
-  { id: "typing2", title: "コードタイピング", description: "プログラムコードをタイピング！エンジニア向け高速入力", category: "スキル", emoji: "💻", color: "#1e293b", players: "2.4k", comingSoon: true },
-  { id: "mole2", title: "もぐら叩き2P", description: "もぐら叩きを友達と同時プレイ！どちらが多く叩けるか対決", category: "アクション", emoji: "🐹", color: "#f97316", players: "1.2k", comingSoon: true, multiplayer: true },
 ];

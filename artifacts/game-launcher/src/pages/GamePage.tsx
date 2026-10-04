@@ -1,73 +1,73 @@
 import { useParams, Link } from "wouter";
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { ArrowLeft, Users, Cpu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GAMES } from "@/data/games";
 import NotFound from "./not-found";
 import { GameTutorial } from "@/components/GameTutorial";
 
-import Snake from "@/games/Snake";
-import Game2048 from "@/games/Game2048";
-import Breakout from "@/games/Breakout";
-import Memory from "@/games/Memory";
-import TicTacToe from "@/games/TicTacToe";
-import Flappy from "@/games/Flappy";
-import Pong from "@/games/Pong";
-import OnlinePong from "@/games/OnlinePong";
-import WhackAMole from "@/games/WhackAMole";
-import TypingTest from "@/games/TypingTest";
-import Minesweeper from "@/games/Minesweeper";
-import OnlineTicTacToe from "@/games/OnlineTicTacToe";
-import OnlineMemory from "@/games/OnlineMemory";
-import Tetris from "@/games/Tetris";
-import ConnectFour from "@/games/ConnectFour";
-import OnlineConnectFour from "@/games/OnlineConnectFour";
-import Reversi from "@/games/Reversi";
-import OnlineReversi from "@/games/OnlineReversi";
-import Sudoku from "@/games/Sudoku";
-import Asteroids from "@/games/Asteroids";
-import SimonSays from "@/games/SimonSays";
-import Blackjack from "@/games/Blackjack";
-import Puzzle15 from "@/games/Puzzle15";
-import CookieClicker from "@/games/CookieClicker";
-import RPS from "@/games/RPS";
-import Maze from "@/games/Maze";
-import Quiz from "@/games/Quiz";
-import Runner from "@/games/Runner";
-import Chess from "@/games/Chess";
-import Battleship from "@/games/Battleship";
-import OnlineBattleship from "@/games/OnlineBattleship";
-import Darts from "@/games/Darts";
-import Sokoban from "@/games/Sokoban";
-import BubbleShooter from "@/games/BubbleShooter";
-import Solitaire from "@/games/Solitaire";
-import SpaceInvaders from "@/games/SpaceInvaders";
-import TowersOfHanoi from "@/games/TowersOfHanoi";
-import Bowling from "@/games/Bowling";
-import Painting from "@/games/Painting";
-import WordChain from "@/games/WordChain";
-import TowerDefense from "@/games/TowerDefense";
-import MahjongSolitaire from "@/games/MahjongSolitaire";
-import Archery from "@/games/Archery";
-import Rhythm from "@/games/Rhythm";
-import Fishing from "@/games/Fishing";
-import Racing from "@/games/Racing";
-import Pinball from "@/games/Pinball";
-import MiniGolf from "@/games/MiniGolf";
-import KatakanaWordle from "@/games/KatakanaWordle";
-import Dungeon from "@/games/Dungeon";
-import Platformer from "@/games/Platformer";
-import Bomberman from "@/games/Bomberman";
-import Go from "@/games/Go";
-import GravityPuzzle from "@/games/GravityPuzzle";
-import DodgeGame from "@/games/DodgeGame";
-import Crossword from "@/games/Crossword";
-import OnlineChess from "@/games/OnlineChess";
-import Pictionary from "@/games/Pictionary";
-import ReflexTest from "@/games/ReflexTest";
-import BalloonPop from "@/games/BalloonPop";
-import NeedleThread from "@/games/NeedleThread";
-import TypingBomb from "@/games/TypingBomb";
+const Snake = lazy(() => import("@/games/Snake"));
+const Game2048 = lazy(() => import("@/games/Game2048"));
+const Breakout = lazy(() => import("@/games/Breakout"));
+const Memory = lazy(() => import("@/games/Memory"));
+const TicTacToe = lazy(() => import("@/games/TicTacToe"));
+const Flappy = lazy(() => import("@/games/Flappy"));
+const Pong = lazy(() => import("@/games/Pong"));
+const OnlinePong = lazy(() => import("@/games/OnlinePong"));
+const WhackAMole = lazy(() => import("@/games/WhackAMole"));
+const TypingTest = lazy(() => import("@/games/TypingTest"));
+const Minesweeper = lazy(() => import("@/games/Minesweeper"));
+const OnlineTicTacToe = lazy(() => import("@/games/OnlineTicTacToe"));
+const OnlineMemory = lazy(() => import("@/games/OnlineMemory"));
+const Tetris = lazy(() => import("@/games/Tetris"));
+const ConnectFour = lazy(() => import("@/games/ConnectFour"));
+const OnlineConnectFour = lazy(() => import("@/games/OnlineConnectFour"));
+const Reversi = lazy(() => import("@/games/Reversi"));
+const OnlineReversi = lazy(() => import("@/games/OnlineReversi"));
+const Sudoku = lazy(() => import("@/games/Sudoku"));
+const Asteroids = lazy(() => import("@/games/Asteroids"));
+const SimonSays = lazy(() => import("@/games/SimonSays"));
+const Blackjack = lazy(() => import("@/games/Blackjack"));
+const Puzzle15 = lazy(() => import("@/games/Puzzle15"));
+const CookieClicker = lazy(() => import("@/games/CookieClicker"));
+const RPS = lazy(() => import("@/games/RPS"));
+const Maze = lazy(() => import("@/games/Maze"));
+const Quiz = lazy(() => import("@/games/Quiz"));
+const Runner = lazy(() => import("@/games/Runner"));
+const Chess = lazy(() => import("@/games/Chess"));
+const Battleship = lazy(() => import("@/games/Battleship"));
+const OnlineBattleship = lazy(() => import("@/games/OnlineBattleship"));
+const Darts = lazy(() => import("@/games/Darts"));
+const Sokoban = lazy(() => import("@/games/Sokoban"));
+const BubbleShooter = lazy(() => import("@/games/BubbleShooter"));
+const Solitaire = lazy(() => import("@/games/Solitaire"));
+const SpaceInvaders = lazy(() => import("@/games/SpaceInvaders"));
+const TowersOfHanoi = lazy(() => import("@/games/TowersOfHanoi"));
+const Bowling = lazy(() => import("@/games/Bowling"));
+const Painting = lazy(() => import("@/games/Painting"));
+const WordChain = lazy(() => import("@/games/WordChain"));
+const TowerDefense = lazy(() => import("@/games/TowerDefense"));
+const MahjongSolitaire = lazy(() => import("@/games/MahjongSolitaire"));
+const Archery = lazy(() => import("@/games/Archery"));
+const Rhythm = lazy(() => import("@/games/Rhythm"));
+const Fishing = lazy(() => import("@/games/Fishing"));
+const Racing = lazy(() => import("@/games/Racing"));
+const Pinball = lazy(() => import("@/games/Pinball"));
+const MiniGolf = lazy(() => import("@/games/MiniGolf"));
+const KatakanaWordle = lazy(() => import("@/games/KatakanaWordle"));
+const Dungeon = lazy(() => import("@/games/Dungeon"));
+const Platformer = lazy(() => import("@/games/Platformer"));
+const Bomberman = lazy(() => import("@/games/Bomberman"));
+const Go = lazy(() => import("@/games/Go"));
+const GravityPuzzle = lazy(() => import("@/games/GravityPuzzle"));
+const DodgeGame = lazy(() => import("@/games/DodgeGame"));
+const Crossword = lazy(() => import("@/games/Crossword"));
+const OnlineChess = lazy(() => import("@/games/OnlineChess"));
+const Pictionary = lazy(() => import("@/games/Pictionary"));
+const ReflexTest = lazy(() => import("@/games/ReflexTest"));
+const BalloonPop = lazy(() => import("@/games/BalloonPop"));
+const NeedleThread = lazy(() => import("@/games/NeedleThread"));
+const TypingBomb = lazy(() => import("@/games/TypingBomb"));
 
 const MULTIPLAYER_GAMES = new Set(["tictactoe", "memory", "connect4", "reversi", "battleship", "chess", "pong"]);
 
@@ -78,31 +78,6 @@ export default function GamePage() {
 
   const game = GAMES.find(g => g.id === gameId);
   if (!game) return <NotFound />;
-
-  if (game.comingSoon) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <header className="bg-white border-b border-border sticky top-0 z-50">
-          <div className="container mx-auto px-4 h-14 flex items-center justify-between">
-            <Link href="/"><Button variant="ghost" size="sm" className="text-muted-foreground"><ArrowLeft className="w-4 h-4 mr-2" />ランチャーへ</Button></Link>
-            <div className="flex items-center gap-2 font-black text-lg">{game.emoji} {game.title}</div>
-            <div className="w-[100px]" />
-          </div>
-        </header>
-        <main className="flex-1 flex items-center justify-center p-8">
-          <div className="text-center max-w-sm">
-            <div className="text-8xl mb-6">{game.emoji}</div>
-            <h2 className="text-3xl font-black text-foreground mb-3">{game.title}</h2>
-            <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl px-6 py-4 mb-6">
-              <p className="text-amber-700 font-black text-lg">Coming Soon!</p>
-              <p className="text-amber-600 text-sm mt-1">このゲームは現在開発中です。もうしばらくお待ちください！</p>
-            </div>
-            <Link href="/"><Button className="rounded-full px-8">他のゲームを遊ぶ</Button></Link>
-          </div>
-        </main>
-      </div>
-    );
-  }
 
   const renderGame = () => {
     switch (gameId) {
@@ -190,7 +165,7 @@ export default function GamePage() {
         <div className="absolute inset-0 opacity-5 pointer-events-none blur-3xl"
           style={{ background: `radial-gradient(circle at center, ${game.color}, transparent 60%)` }} />
         <div className="relative z-10 w-full max-w-4xl mx-auto flex flex-col items-center">
-          {renderGame()}
+          <Suspense fallback={null}>{renderGame()}</Suspense>
         </div>
       </main>
     </div>
